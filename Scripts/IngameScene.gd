@@ -15,6 +15,8 @@ var prevRotation = sceneLoader.prevBoxRotation
 var transformBox = Vector2(0, distBoxtoBox)
 var rng = RandomNumberGenerator.new()
 var correctPath= RandomNumberGenerator.new()
+var i
+var count = 0
 
 func _ready():
 	startingBox = load("res://Scenes/startingBox.tscn")
@@ -30,20 +32,25 @@ func _ready():
 
 func randBox():
 	rng.randomize()
-	var randBox = rng.randi_range(1,3)
+	var randBox = rng.randi_range(1,4)
 	if randBox == 1:
 		prevBox = hall
 	if randBox == 2:
-		prevBox = hall
-	
+		prevBox = twoAlternativesBox
+	if randBox == 3:
+		prevBox = threeAlternativesBox
 	
 	
 
+
 func nextBox():
-	var i = len(sceneLoader.prevBoxRotation)
-	var count = 0
+	i = len(sceneLoader.prevBoxRotation)
 	if count==0:
 		sceneLoader.sceneInstance(startingBox, vectorBoxes,45)
+		randBox()
+		vectorBoxes+= transformBox.rotated(2*PI)
+		sceneLoader.sceneInstance(prevBox, vectorBoxes,45)
+		count+=1
 	if prevBox == hall:
 		vectorBoxes+= transformBox.rotated(deg2rad(prevRotation[i-1]))
 		randBox()
@@ -54,8 +61,8 @@ func nextBox():
 		randBox()
 		if rightPath ==1:
 			sceneLoader.sceneInstance(startingBox, vectorBoxes+Vector2(0, -distBoxtoBox).rotated(deg2rad(sceneLoader.prevBoxRotation[i-1]-90)), sceneLoader.prevBoxRotation[i-1]+90)
-			transformBox = Vector2(0, -distBoxtoBox).rotated(deg2rad(sceneLoader.prevBoxRotation[i-1]+90))
-			sceneLoader.sceneInstance(prevBox, vectorBoxes+transformBox, sceneLoader.prevBoxRotation[i-2]+90)
+			vectorBoxes+=transformBox.rotated(deg2rad(sceneLoader.prevBoxRotation[i-1]+90))
+			sceneLoader.sceneInstance(prevBox, vectorBoxes, sceneLoader.prevBoxRotation[i-2]+90)
 
 		if rightPath ==2:
 			sceneLoader.sceneInstance(startingBox, vectorBoxes+Vector2(0, -distBoxtoBox).rotated(deg2rad(sceneLoader.prevBoxRotation[i-1]+90)), sceneLoader.prevBoxRotation[i-1]-90)
@@ -77,17 +84,8 @@ func nextBox():
 			sceneLoader.sceneInstance(startingBox, vectorBoxes+ transformBox.rotated(deg2rad(prevRotation[i-1]+90)), prevRotation[i-1]-90)
 			
 func cooldownFinished():
-	var i = len(sceneLoader.prevBoxRotation)
+	nextBox()
 	timer.start()
-	if count==1:
-		sceneLoader.sceneInstance(startingBox, vectorBoxes,45)
-		vectorBoxes+= transformBox.rotated(2*PI)
-		randBox()
-		sceneLoader.sceneInstance(prevBox, vectorBoxes, 45)
-		count+=1
-	if count==2:
-		nextBox()
-
 	
 		
 		
